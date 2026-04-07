@@ -7,3 +7,4 @@ plotly
 transformers
 torch
 sentence-transformers
+matplotlib
