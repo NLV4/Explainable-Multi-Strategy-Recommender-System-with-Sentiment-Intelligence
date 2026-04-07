@@ -1,0 +1,9 @@
+user_id,pref_sentiment,pref_market,pref_risk
+user_1,positive,bullish,medium
+user_2,negative,bearish,high
+user_3,neutral,neutral,low
+user_4,positive,bullish,high
+user_5,negative,bearish,medium
+user_6,neutral,neutral,medium
+user_7,positive,bullish,low
+user_8,negative,bearish,low
