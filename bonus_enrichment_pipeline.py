@@ -15,48 +15,27 @@ import numpy as np
 import pandas as pd
 
 
-FINANCE_KEYWORDS = [
-    "stock", "stocks", "share", "shares",
-    "market", "markets",
-    "investor", "investors",
-    "nasdaq", "dow", "s&p", "sp500",
-    "ipo", "dividend", "dividends",
-    "earnings", "revenue", "profit", "profits", "loss", "losses",
-    "inflation", "interest rate", "interest rates",
-    "bond", "bonds", "treasury",
-    "forex", "currency", "currencies", "exchange rate",
-    "bank", "banks", "banking",
-    "oil", "crude",
-    "gdp", "economy", "economic",
-    "financial", "finance",
-    "trade", "trading",
-    "etf", "fund", "funds",
-    "credit", "debt", "capital",
-    "merger", "acquisition",
-    "quarterly results", "guidance"
-]
-
-
-def normalize_text(text: str) -> str:
-    text = str(text).lower()
-    text = re.sub(r"[^a-z0-9&\s]", " ", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
-
-
 def is_finance_text(text: str) -> bool:
-    """
-    Strict domain filter:
-    only classify as finance if at least one strong finance phrase appears.
-    """
-    text = normalize_text(text)
-    padded = f" {text} "
+    text = str(text).lower()
 
-    for keyword in FINANCE_KEYWORDS:
-        kw = normalize_text(keyword)
-        if f" {kw} " in padded:
-            return True
-    return False
+    finance_keywords = [
+        "market", "stock", "stocks", "price", "prices", "share", "shares",
+        "economy", "economic", "inflation",
+        "bank", "banks", "interest", "interest rate", "interest rates",
+        "oil", "energy", "trade", "trading",
+        "revenue", "profit", "profits", "loss", "losses",
+        "earnings", "financial", "finance",
+        "investor", "investors",
+        "nasdaq", "dow", "s&p", "sp500",
+        "bond", "bonds", "treasury",
+        "currency", "currencies", "forex",
+        "gdp", "capital", "credit", "debt",
+        "fund", "funds", "etf",
+        "merger", "acquisition", "dividend", "dividends",
+        "ipo", "guidance", "quarterly results"
+    ]
+
+    return any(k in text for k in finance_keywords)
 
 
 def clean_finbert_text(text: str) -> str:
@@ -74,7 +53,7 @@ def label_to_score(label: str, confidence: float) -> float:
     return 0.0
 
 
-def apply_safe_finbert(items: pd.DataFrame, min_confidence: float = 0.65) -> pd.DataFrame:
+def apply_safe_finbert(items: pd.DataFrame) -> pd.DataFrame:
     from transformers import pipeline
 
     classifier = pipeline(
@@ -95,6 +74,7 @@ def apply_safe_finbert(items: pd.DataFrame, min_confidence: float = 0.65) -> pd.
     finance_count = 0
     neutral_rule_count = 0
     lowconf_count = 0
+    weak_count = 0
 
     for text in texts:
         cleaned = clean_finbert_text(text)
@@ -114,15 +94,7 @@ def apply_safe_finbert(items: pd.DataFrame, min_confidence: float = 0.65) -> pd.
         pred_label = str(pred["label"]).lower()
         confidence = float(pred["score"])
 
-        # Rule 2: class-specific confidence thresholds
-        if pred_label == "positive" and confidence < 0.40:
-            labels.append("neutral")
-            confidences.append(confidence)
-            signed_scores.append(0.0)
-            backends.append("finbert-lowconf-neutral")
-            lowconf_count += 1
-            continue
-
+        # Rule 2: weak negative predictions -> neutral
         if pred_label == "negative" and confidence < 0.60:
             labels.append("neutral")
             confidences.append(confidence)
@@ -131,7 +103,16 @@ def apply_safe_finbert(items: pd.DataFrame, min_confidence: float = 0.65) -> pd.
             lowconf_count += 1
             continue
 
-        # Rule 3: confident finance prediction -> use FinBERT output
+        # Rule 3: weak positive predictions -> keep label but soften score
+        if pred_label == "positive" and confidence < 0.45:
+            labels.append("positive")
+            confidences.append(confidence)
+            signed_scores.append(0.2)
+            backends.append("finbert-weak")
+            weak_count += 1
+            continue
+
+        # Rule 4: confident finance prediction -> use FinBERT output
         labels.append(pred_label)
         confidences.append(confidence)
         signed_scores.append(label_to_score(pred_label, confidence))
@@ -151,6 +132,7 @@ def apply_safe_finbert(items: pd.DataFrame, min_confidence: float = 0.65) -> pd.
     print(f"Finance-relevant rows sent to FinBERT: {finance_count}")
     print(f"Rows forced neutral by domain filter: {neutral_rule_count}")
     print(f"Finance rows forced neutral by low confidence: {lowconf_count}")
+    print(f"Weak positive rows kept with softened score: {weak_count}")
 
     return items
 
@@ -178,7 +160,7 @@ def main() -> None:
 
     items = pd.read_csv(csv_path)
 
-    items = apply_safe_finbert(items, min_confidence=0.55)
+    items = apply_safe_finbert(items)
     items.to_csv(out_csv, index=False)
     print(f"Saved enriched CSV to {out_csv}")
 
