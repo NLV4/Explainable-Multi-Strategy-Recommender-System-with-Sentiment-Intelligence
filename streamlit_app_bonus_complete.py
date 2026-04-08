@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from matplotlib.pyplot import hist
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -28,13 +27,13 @@ CUSTOM_CSS = """
         --bg-soft: rgba(13, 24, 40, 0.82);
         --card: rgba(10, 19, 33, 0.88);
         --card-2: rgba(15, 28, 46, 0.92);
-        --stroke: rgba(255, 255, 255, 0.08);
-        --text: #eaf2ff;
-        --muted: #aab8d3;
-        --accent: #5b8cff;
-        --accent-2: #23c6a8;
-        --danger: #ff6b6b;
-        --warning: #f5b342;
+        --stroke: rgba(255, 255, 255, 0.10);
+        --text: #f4f8ff;
+        --muted: #c2d0ea;
+        --accent: #6ea8ff;
+        --accent-2: #2dd4bf;
+        --danger: #ff7b7b;
+        --warning: #f5c15a;
     }
 
     .stApp {
@@ -51,12 +50,14 @@ CUSTOM_CSS = """
     }
 
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, rgba(10, 17, 29, 0.98), rgba(12, 18, 31, 0.98));
+        background: linear-gradient(180deg, rgba(9, 16, 28, 0.99), rgba(11, 18, 31, 0.99));
         border-right: 1px solid var(--stroke);
     }
 
     [data-testid="stSidebar"] .block-container {
-        padding-top: 1.2rem;
+        padding-top: 1.25rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 
     h1, h2, h3, h4, h5, h6, p, span, div, label {
@@ -67,7 +68,7 @@ CUSTOM_CSS = """
         background: linear-gradient(135deg, rgba(16, 30, 52, 0.96), rgba(12, 23, 38, 0.92));
         border: 1px solid var(--stroke);
         border-radius: 24px;
-        padding: 1.35rem 1.5rem;
+        padding: 1.4rem 1.6rem;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
         margin-bottom: 1rem;
     }
@@ -83,8 +84,9 @@ CUSTOM_CSS = """
 
     .metric-label {
         color: var(--muted);
-        font-size: 0.82rem;
+        font-size: 0.85rem;
         margin-bottom: 0.35rem;
+        font-weight: 600;
     }
 
     .metric-value {
@@ -95,10 +97,10 @@ CUSTOM_CSS = """
     }
 
     .glass-card {
-        background: linear-gradient(180deg, rgba(11, 21, 35, 0.94), rgba(12, 20, 33, 0.9));
+        background: linear-gradient(180deg, rgba(11, 21, 35, 0.94), rgba(12, 20, 33, 0.90));
         border: 1px solid var(--stroke);
         border-radius: 22px;
-        padding: 1rem 1.05rem;
+        padding: 1.1rem 1.1rem;
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
         margin-bottom: 1rem;
     }
@@ -107,7 +109,7 @@ CUSTOM_CSS = """
         background: linear-gradient(180deg, rgba(12, 22, 36, 0.96), rgba(8, 16, 28, 0.96));
         border: 1px solid var(--stroke);
         border-radius: 22px;
-        padding: 1.1rem 1.1rem 0.9rem 1.1rem;
+        padding: 1.15rem 1.15rem 1rem 1.15rem;
         margin-bottom: 1rem;
         box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
     }
@@ -116,32 +118,143 @@ CUSTOM_CSS = """
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
         border-radius: 999px;
         background: linear-gradient(135deg, rgba(91, 140, 255, 0.25), rgba(35, 198, 168, 0.22));
-        border: 1px solid rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.10);
         font-weight: 800;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
 
     .chip {
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
-        padding: 0.42rem 0.72rem;
+        padding: 0.45rem 0.78rem;
         border-radius: 999px;
-        border: 1px solid var(--stroke);
-        background: rgba(255, 255, 255, 0.04);
-        font-size: 0.83rem;
+        border: 1px solid rgba(255,255,255,0.10);
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 0.84rem;
         color: var(--text);
-        margin-right: 0.4rem;
+        margin-right: 0.45rem;
         margin-bottom: 0.45rem;
+        font-weight: 600;
     }
 
-    .pill-positive { background: rgba(35, 198, 168, 0.12); color: #77f1d2; border: 1px solid rgba(35,198,168,0.24); }
-    .pill-neutral { background: rgba(245, 179, 66, 0.12); color: #ffd07a; border: 1px solid rgba(245,179,66,0.24); }
-    .pill-negative { background: rgba(255, 107, 107, 0.12); color: #ff9c9c; border: 1px solid rgba(255,107,107,0.24); }
+    .pill-positive { background: rgba(35, 198, 168, 0.14); color: #90ffe4; border: 1px solid rgba(35,198,168,0.26); }
+    .pill-neutral { background: rgba(245, 179, 66, 0.14); color: #ffe19a; border: 1px solid rgba(245,179,66,0.26); }
+    .pill-negative { background: rgba(255, 107, 107, 0.14); color: #ffb1b1; border: 1px solid rgba(255,107,107,0.26); }
+
+    /* Sidebar section labels */
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] .stMarkdown,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] span,
+    [data-testid="stSidebar"] div {
+        color: var(--text);
+    }
+
+    /* Selectbox / multiselect / dropdown */
+    div[data-baseweb="select"] > div {
+        background: rgba(15, 27, 46, 0.96) !important;
+        border: 1px solid rgba(255,255,255,0.14) !important;
+        border-radius: 14px !important;
+        min-height: 3rem !important;
+        box-shadow: none !important;
+    }
+
+    div[data-baseweb="select"] * {
+        color: #f4f8ff !important;
+        font-weight: 600 !important;
+    }
+
+    div[data-baseweb="popover"] * {
+        color: #f4f8ff !important;
+    }
+
+    /* Text input / number input */
+    .stTextInput input,
+    .stNumberInput input {
+        background: rgba(15, 27, 46, 0.96) !important;
+        color: #f4f8ff !important;
+        border-radius: 14px !important;
+        border: 1px solid rgba(255,255,255,0.14) !important;
+    }
+
+    /* Radio buttons labels */
+    .stRadio label,
+    .stSelectbox label,
+    .stSlider label,
+    .stToggle label {
+        font-weight: 700 !important;
+        color: #f4f8ff !important;
+    }
+
+    /* Radio horizontal options */
+    div[role="radiogroup"] label {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 12px;
+        padding: 0.4rem 0.65rem;
+        margin-right: 0.35rem;
+    }
+
+    /* Slider track and text */
+    .stSlider [data-testid="stTickBarMin"],
+    .stSlider [data-testid="stThumbValue"] {
+        color: #f4f8ff !important;
+    }
+
+    .stSlider > div[data-baseweb="slider"] > div {
+        color: #f4f8ff !important;
+    }
+
+    /* Toggle spacing */
+    .stToggle {
+        padding-top: 0.2rem;
+        padding-bottom: 0.4rem;
+    }
+
+    /* Buttons */
+    .stButton > button,
+    .stDownloadButton > button {
+        border-radius: 14px !important;
+        min-height: 2.9rem !important;
+        font-weight: 700 !important;
+    }
+
+    .stButton > button {
+        border: 0;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        color: white;
+        box-shadow: 0 10px 24px rgba(91, 140, 255, 0.25);
+    }
+
+    .stDownloadButton > button {
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.05);
+        color: var(--text);
+    }
+
+    /* Dataframe */
+    div[data-testid="stDataFrame"] {
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    /* Tabs */
+    button[data-baseweb="tab"] {
+        color: #d9e6ff !important;
+        font-weight: 700 !important;
+    }
+
+    /* Help text / captions */
+    [data-testid="stSidebar"] .stCaption,
+    .stCaption {
+        color: var(--muted) !important;
+    }
 </style>
 """
 
