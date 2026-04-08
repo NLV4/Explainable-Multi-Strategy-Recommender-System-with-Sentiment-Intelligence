@@ -1,10 +1,8 @@
-import os
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -19,6 +17,13 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+plotly_config = {
+    "displayModeBar": True,
+    "scrollZoom": True,
+    "displaylogo": False,
+    "responsive": True,
+}
 
 st.markdown("""
 <style>
@@ -38,16 +43,11 @@ CUSTOM_CSS = """
 <style>
     :root {
         --bg: #07111f;
-        --bg-soft: rgba(13, 24, 40, 0.82);
-        --card: rgba(10, 19, 33, 0.88);
-        --card-2: rgba(15, 28, 46, 0.92);
         --stroke: rgba(255, 255, 255, 0.12);
         --text: #f8fbff;
         --muted: #d3def2;
         --accent: #6ea8ff;
         --accent-2: #2dd4bf;
-        --danger: #ff7b7b;
-        --warning: #f5c15a;
     }
 
     .stApp {
@@ -186,10 +186,7 @@ CUSTOM_CSS = """
         box-shadow: none !important;
     }
 
-    div[data-baseweb="select"] input {
-        color: #ffffff !important;
-    }
-
+    div[data-baseweb="select"] input,
     div[data-baseweb="select"] span {
         color: #ffffff !important;
         opacity: 1 !important;
@@ -213,24 +210,15 @@ CUSTOM_CSS = """
 
     div[data-baseweb="menu"] ul,
     div[data-baseweb="menu"] li,
-    div[data-baseweb="menu"] div {
-        background: #0c1a2d !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-
-    div[data-baseweb="menu"] li:hover,
-    div[data-baseweb="menu"] div:hover {
-        background: #17304f !important;
-        color: #ffffff !important;
-    }
-
+    div[data-baseweb="menu"] div,
     [role="option"] {
         background: #0c1a2d !important;
         color: #ffffff !important;
         font-weight: 700 !important;
     }
 
+    div[data-baseweb="menu"] li:hover,
+    div[data-baseweb="menu"] div:hover,
     [role="option"]:hover {
         background: #17304f !important;
         color: #ffffff !important;
@@ -287,28 +275,54 @@ CUSTOM_CSS = """
         color: var(--muted) !important;
     }
 
-    .pretty-table-wrap {
+    .pretty-table-outer {
         background: linear-gradient(180deg, rgba(11, 21, 35, 0.96), rgba(9, 17, 28, 0.96));
         border: 1px solid rgba(255,255,255,0.10);
         border-radius: 18px;
-        overflow: hidden;
         box-shadow: 0 16px 36px rgba(0,0,0,0.18);
         margin-top: 0.5rem;
+        overflow: hidden;
+    }
+
+    .pretty-table-scroll {
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 360px;
+    }
+
+    .pretty-table-scroll::-webkit-scrollbar {
+        height: 10px;
+        width: 10px;
+    }
+
+    .pretty-table-scroll::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.04);
+        border-radius: 999px;
+    }
+
+    .pretty-table-scroll::-webkit-scrollbar-thumb {
+        background: rgba(110,168,255,0.55);
+        border-radius: 999px;
     }
 
     .pretty-table {
         width: 100%;
+        min-width: 900px;
         border-collapse: collapse;
         font-size: 0.92rem;
     }
 
     .pretty-table thead th {
-        background: rgba(255,255,255,0.05);
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #12243d;
         color: #f8fbff;
         text-align: left;
         padding: 0.85rem 0.9rem;
         font-weight: 800;
         border-bottom: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
     }
 
     .pretty-table tbody td {
@@ -316,6 +330,7 @@ CUSTOM_CSS = """
         color: #eaf2ff;
         border-bottom: 1px solid rgba(255,255,255,0.06);
         vertical-align: top;
+        white-space: nowrap;
     }
 
     .pretty-table tbody tr:nth-child(even) {
@@ -351,7 +366,9 @@ CUSTOM_CSS = """
     }
 
     .headline-cell {
-        max-width: 620px;
+        min-width: 420px;
+        max-width: 700px;
+        white-space: normal !important;
         line-height: 1.45;
     }
 </style>
@@ -397,9 +414,10 @@ def render_pretty_table(df: pd.DataFrame, max_rows: int = 8) -> str:
     df = df.head(max_rows).copy()
 
     html = """
-    <div class="pretty-table-wrap">
-    <table class="pretty-table">
-        <thead>
+    <div class="pretty-table-outer">
+      <div class="pretty-table-scroll">
+        <table class="pretty-table">
+          <thead>
             <tr>
     """
 
@@ -420,15 +438,18 @@ def render_pretty_table(df: pd.DataFrame, max_rows: int = 8) -> str:
                 elif label == "negative":
                     css = "pill-neg"
                 html += f"<td><span class='table-pill {css}'>{label.title()}</span></td>"
-
             elif "headline" in col.lower():
                 html += f"<td class='headline-cell'>{value}</td>"
-
             else:
                 html += f"<td>{value}</td>"
         html += "</tr>"
 
-    html += "</tbody></table></div>"
+    html += """
+          </tbody>
+        </table>
+      </div>
+    </div>
+    """
     return html
 
 
@@ -735,7 +756,7 @@ with right:
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(color="#eaf2ff"),
     )
-    st.plotly_chart(fig_sent, use_container_width=True)
+    st.plotly_chart(fig_sent, use_container_width=True, config=plotly_config)
     st.markdown("</div>", unsafe_allow_html=True)
 
 reco = recommend_hybrid(
@@ -795,7 +816,7 @@ with t2:
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color="#eaf2ff"),
         )
-        st.plotly_chart(fig_avg, use_container_width=True)
+        st.plotly_chart(fig_avg, use_container_width=True, config=plotly_config)
     with c2:
         deep_df = reco[["item_id", "Date", "content_score", "embedding_score", "cf_score", "context_score", "sentiment_component", "hybrid_score"]].copy()
         deep_df["Date"] = pd.to_datetime(deep_df["Date"]).dt.strftime("%Y-%m-%d")
@@ -822,7 +843,7 @@ with t4:
 
     Note: actual cloud hosting must still be performed on the selected platform.
     """)
-    st.code("docker build -t cognitus-lite .\ndocker run -p 8501:8501 cognitus-lite")
+    st.code("docker build -t cognitus-lite .\\ndocker run -p 8501:8501 cognitus-lite")
 
 st.markdown(
     "<div style='color:#aab8d3; margin-top:1rem;'>Built from processed_items_for_streamlit.csv, train_interactions_for_streamlit.csv, synthetic_user_profiles.csv, and optional enriched bonus artifacts.</div>",
