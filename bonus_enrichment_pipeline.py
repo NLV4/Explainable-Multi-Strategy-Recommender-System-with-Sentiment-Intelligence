@@ -16,20 +16,47 @@ import pandas as pd
 
 
 FINANCE_KEYWORDS = [
-    "stock", "stocks", "market", "markets", "share", "shares", "investor", "investors",
-    "inflation", "oil", "bank", "banks", "economy", "economic", "fed", "federal reserve",
-    "interest rate", "interest rates", "bond", "bonds", "revenue", "profit", "profits",
-    "loss", "losses", "earnings", "trade", "trading", "finance", "financial", "gdp",
-    "currency", "currencies", "forex", "exchange rate", "crude", "nasdaq", "dow", "s&p",
-    "sp500", "ipo", "merger", "acquisition", "dividend", "dividends", "treasury", "loan",
-    "loans", "credit", "debt", "valuation", "capital", "fund", "funds", "etf", "commodity",
-    "commodities", "price target", "guidance", "quarterly results"
+    "stock", "stocks", "share", "shares",
+    "market", "markets",
+    "investor", "investors",
+    "nasdaq", "dow", "s&p", "sp500",
+    "ipo", "dividend", "dividends",
+    "earnings", "revenue", "profit", "profits", "loss", "losses",
+    "inflation", "interest rate", "interest rates",
+    "bond", "bonds", "treasury",
+    "forex", "currency", "currencies", "exchange rate",
+    "bank", "banks", "banking",
+    "oil", "crude",
+    "gdp", "economy", "economic",
+    "financial", "finance",
+    "trade", "trading",
+    "etf", "fund", "funds",
+    "credit", "debt", "capital",
+    "merger", "acquisition",
+    "quarterly results", "guidance"
 ]
 
 
-def is_finance_text(text: str) -> bool:
+def normalize_text(text: str) -> str:
     text = str(text).lower()
-    return any(keyword in text for keyword in FINANCE_KEYWORDS)
+    text = re.sub(r"[^a-z0-9&\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def is_finance_text(text: str) -> bool:
+    """
+    Strict domain filter:
+    only classify as finance if at least one strong finance phrase appears.
+    """
+    text = normalize_text(text)
+    padded = f" {text} "
+
+    for keyword in FINANCE_KEYWORDS:
+        kw = normalize_text(keyword)
+        if f" {kw} " in padded:
+            return True
+    return False
 
 
 def clean_finbert_text(text: str) -> str:
@@ -47,7 +74,7 @@ def label_to_score(label: str, confidence: float) -> float:
     return 0.0
 
 
-def apply_safe_finbert(items: pd.DataFrame, min_confidence: float = 0.60) -> pd.DataFrame:
+def apply_safe_finbert(items: pd.DataFrame, min_confidence: float = 0.65) -> pd.DataFrame:
     from transformers import pipeline
 
     classifier = pipeline(
@@ -56,51 +83,74 @@ def apply_safe_finbert(items: pd.DataFrame, min_confidence: float = 0.60) -> pd.
         tokenizer="ProsusAI/finbert",
         truncation=True,
         max_length=512,
-        batch_size=16,
     )
 
     texts = items["raw_text"].fillna("").astype(str).tolist()
 
-    finance_mask = [is_finance_text(text) for text in texts]
-    finance_indices = [i for i, is_fin in enumerate(finance_mask) if is_fin]
-    finance_texts = [clean_finbert_text(texts[i]) for i in finance_indices]
+    labels = []
+    confidences = []
+    signed_scores = []
+    backends = []
 
-    labels = ["neutral"] * len(items)
-    confidences = [0.0] * len(items)
-    signed_scores = [0.0] * len(items)
-    backends = ["rule-neutral"] * len(items)
+    finance_count = 0
+    neutral_rule_count = 0
+    lowconf_count = 0
 
-    if finance_texts:
-        preds = classifier(finance_texts)
+    for text in texts:
+        cleaned = clean_finbert_text(text)
 
-        for idx, pred in zip(finance_indices, preds):
-            label = str(pred["label"]).lower()
-            confidence = float(pred["score"])
+        # Rule 1: non-financial text -> neutral directly
+        if not cleaned or not is_finance_text(cleaned):
+            labels.append("neutral")
+            confidences.append(0.0)
+            signed_scores.append(0.0)
+            backends.append("rule-neutral")
+            neutral_rule_count += 1
+            continue
 
-            if confidence < min_confidence:
-                labels[idx] = "neutral"
-                confidences[idx] = confidence
-                signed_scores[idx] = 0.0
-                backends[idx] = "finbert-lowconf-neutral"
-            else:
-                labels[idx] = label
-                confidences[idx] = confidence
-                signed_scores[idx] = label_to_score(label, confidence)
-                backends[idx] = "finbert"
+        finance_count += 1
+        pred = classifier(cleaned)[0]
+
+        pred_label = str(pred["label"]).lower()
+        confidence = float(pred["score"])
+
+        # Rule 2: class-specific confidence thresholds
+        if pred_label == "positive" and confidence < 0.40:
+            labels.append("neutral")
+            confidences.append(confidence)
+            signed_scores.append(0.0)
+            backends.append("finbert-lowconf-neutral")
+            lowconf_count += 1
+            continue
+
+        if pred_label == "negative" and confidence < 0.60:
+            labels.append("neutral")
+            confidences.append(confidence)
+            signed_scores.append(0.0)
+            backends.append("finbert-lowconf-neutral")
+            lowconf_count += 1
+            continue
+
+        # Rule 3: confident finance prediction -> use FinBERT output
+        labels.append(pred_label)
+        confidences.append(confidence)
+        signed_scores.append(label_to_score(pred_label, confidence))
+        backends.append("finbert")
 
     items["sentiment_label_finbert"] = labels
     items["sentiment_confidence_finbert"] = confidences
     items["sentiment_score_finbert"] = signed_scores
     items["sentiment_backend"] = backends
 
-    # Make these the active sentiment columns used by the bonus app
+    # Active columns used by the bonus app
     items["sentiment_label_active"] = labels
     items["sentiment_confidence_active"] = confidences
     items["sentiment_score_active"] = signed_scores
 
     print("Safe FinBERT sentiment created successfully.")
-    print(f"Finance-relevant rows sent to FinBERT: {sum(finance_mask)} / {len(finance_mask)}")
-    print(f"Rows forced to neutral by rule filter: {len(finance_mask) - sum(finance_mask)}")
+    print(f"Finance-relevant rows sent to FinBERT: {finance_count}")
+    print(f"Rows forced neutral by domain filter: {neutral_rule_count}")
+    print(f"Finance rows forced neutral by low confidence: {lowconf_count}")
 
     return items
 
@@ -128,18 +178,11 @@ def main() -> None:
 
     items = pd.read_csv(csv_path)
 
-    try:
-        items = apply_safe_finbert(items, min_confidence=0.60)
-    except Exception as exc:
-        print(f"FinBERT step skipped: {exc}")
-
+    items = apply_safe_finbert(items, min_confidence=0.55)
     items.to_csv(out_csv, index=False)
     print(f"Saved enriched CSV to {out_csv}")
 
-    try:
-        build_semantic_embeddings(items, out_npy)
-    except Exception as exc:
-        print(f"Embedding step skipped: {exc}")
+    build_semantic_embeddings(items, out_npy)
 
 
 if __name__ == "__main__":
