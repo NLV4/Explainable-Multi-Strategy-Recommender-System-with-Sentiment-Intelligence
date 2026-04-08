@@ -20,6 +20,20 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+st.markdown("""
+<style>
+header[data-testid="stHeader"] {
+    display: none !important;
+}
+div[data-testid="stToolbar"] {
+    display: none !important;
+}
+button[kind="header"] {
+    display: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 CUSTOM_CSS = """
 <style>
     :root {
@@ -146,7 +160,6 @@ CUSTOM_CSS = """
     .pill-neutral { background: rgba(245, 179, 66, 0.14); color: #ffe09a; border: 1px solid rgba(245,179,66,0.26); }
     .pill-negative { background: rgba(255, 107, 107, 0.14); color: #ffb0b0; border: 1px solid rgba(255,107,107,0.26); }
 
-    /* Sidebar text */
     [data-testid="stSidebar"] label,
     [data-testid="stSidebar"] .stMarkdown,
     [data-testid="stSidebar"] p,
@@ -155,7 +168,16 @@ CUSTOM_CSS = """
         color: var(--text) !important;
     }
 
-    /* Closed select box */
+    .stSelectbox, .stSlider, .stRadio, .stToggle {
+        margin-bottom: 1rem !important;
+    }
+
+    [data-testid="stSidebar"] .stSelectbox > div,
+    [data-testid="stSidebar"] .stSlider > div,
+    [data-testid="stSidebar"] .stRadio > div {
+        margin-top: 0.25rem !important;
+    }
+
     div[data-baseweb="select"] > div {
         background: #0c1a2d !important;
         border: 1px solid rgba(255,255,255,0.16) !important;
@@ -178,7 +200,6 @@ CUSTOM_CSS = """
         fill: #ffffff !important;
     }
 
-    /* Open dropdown / popover menu */
     div[data-baseweb="popover"] {
         z-index: 99999 !important;
     }
@@ -204,7 +225,6 @@ CUSTOM_CSS = """
         color: #ffffff !important;
     }
 
-    /* Fallback for option list text visibility */
     [role="option"] {
         background: #0c1a2d !important;
         color: #ffffff !important;
@@ -221,7 +241,6 @@ CUSTOM_CSS = """
         color: #ffffff !important;
     }
 
-    /* Radio pills */
     div[role="radiogroup"] label {
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.12);
@@ -230,7 +249,6 @@ CUSTOM_CSS = """
         margin-right: 0.35rem;
     }
 
-    /* Slider labels */
     .stSlider label,
     .stRadio label,
     .stSelectbox label,
@@ -239,7 +257,6 @@ CUSTOM_CSS = """
         font-weight: 700 !important;
     }
 
-    /* Buttons */
     .stButton > button,
     .stDownloadButton > button {
         border-radius: 14px !important;
@@ -260,40 +277,82 @@ CUSTOM_CSS = """
         color: var(--text);
     }
 
-    /* Dataframe */
-    div[data-testid="stDataFrame"] {
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 18px;
-        overflow: hidden;
-    }
-
-    /* Top right app toolbar icons */
-    [data-testid="stToolbar"] button,
-    [data-testid="stToolbar"] svg,
-    [data-testid="stToolbarActions"] button,
-    [data-testid="stDecoration"] {
-        color: #ffffff !important;
-        fill: #ffffff !important;
-        opacity: 1 !important;
-    }
-
-    header button,
-    header svg {
-        color: #ffffff !important;
-        fill: #ffffff !important;
-        opacity: 1 !important;
-    }
-
-    /* Tabs */
     button[data-baseweb="tab"] {
         color: #e8f0ff !important;
         font-weight: 700 !important;
     }
 
-    /* Captions */
     .stCaption,
     [data-testid="stSidebar"] .stCaption {
         color: var(--muted) !important;
+    }
+
+    .pretty-table-wrap {
+        background: linear-gradient(180deg, rgba(11, 21, 35, 0.96), rgba(9, 17, 28, 0.96));
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+        margin-top: 0.5rem;
+    }
+
+    .pretty-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+    }
+
+    .pretty-table thead th {
+        background: rgba(255,255,255,0.05);
+        color: #f8fbff;
+        text-align: left;
+        padding: 0.85rem 0.9rem;
+        font-weight: 800;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .pretty-table tbody td {
+        padding: 0.8rem 0.9rem;
+        color: #eaf2ff;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        vertical-align: top;
+    }
+
+    .pretty-table tbody tr:nth-child(even) {
+        background: rgba(255,255,255,0.02);
+    }
+
+    .pretty-table tbody tr:hover {
+        background: rgba(110,168,255,0.08);
+    }
+
+    .table-pill {
+        display: inline-block;
+        padding: 0.24rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .pill-pos {
+        background: rgba(35, 198, 168, 0.14);
+        color: #90ffe4;
+    }
+
+    .pill-neu {
+        background: rgba(245, 179, 66, 0.14);
+        color: #ffe09a;
+    }
+
+    .pill-neg {
+        background: rgba(255, 107, 107, 0.14);
+        color: #ffb0b0;
+    }
+
+    .headline-cell {
+        max-width: 620px;
+        line-height: 1.45;
     }
 </style>
 """
@@ -334,40 +393,85 @@ def tone_badge(label: str) -> str:
     return f"<span class='chip {css}'>{label.title()}</span>"
 
 
+def render_pretty_table(df: pd.DataFrame, max_rows: int = 8) -> str:
+    df = df.head(max_rows).copy()
+
+    html = """
+    <div class="pretty-table-wrap">
+    <table class="pretty-table">
+        <thead>
+            <tr>
+    """
+
+    for col in df.columns:
+        html += f"<th>{col}</th>"
+    html += "</tr></thead><tbody>"
+
+    for _, row in df.iterrows():
+        html += "<tr>"
+        for col in df.columns:
+            value = row[col]
+
+            if col.lower() == "sentiment":
+                label = str(value).lower()
+                css = "pill-neu"
+                if label == "positive":
+                    css = "pill-pos"
+                elif label == "negative":
+                    css = "pill-neg"
+                html += f"<td><span class='table-pill {css}'>{label.title()}</span></td>"
+
+            elif "headline" in col.lower():
+                html += f"<td class='headline-cell'>{value}</td>"
+
+            else:
+                html += f"<td>{value}</td>"
+        html += "</tr>"
+
+    html += "</tbody></table></div>"
+    return html
+
+
 @st.cache_data
 def load_data():
-    base = Path('.')
-    enriched_path = base / 'processed_items_for_streamlit_bonus.csv'
-    base_path = base / 'processed_items_for_streamlit.csv'
+    base = Path(".")
+    enriched_path = base / "processed_items_for_streamlit_bonus.csv"
+    base_path = base / "processed_items_for_streamlit.csv"
     items = pd.read_csv(enriched_path if enriched_path.exists() else base_path)
-    interactions = pd.read_csv(base / 'train_interactions_for_streamlit.csv')
-    users = pd.read_csv(base / 'synthetic_user_profiles.csv')
+    interactions = pd.read_csv(base / "train_interactions_for_streamlit.csv")
+    users = pd.read_csv(base / "synthetic_user_profiles.csv")
 
-    items['Date'] = pd.to_datetime(items['Date'], errors='coerce')
-    interactions['Date'] = pd.to_datetime(interactions['Date'], errors='coerce')
-    if 'interaction' not in interactions.columns:
-        interactions['interaction'] = 1
+    items["Date"] = pd.to_datetime(items["Date"], errors="coerce")
+    interactions["Date"] = pd.to_datetime(interactions["Date"], errors="coerce")
+    if "interaction" not in interactions.columns:
+        interactions["interaction"] = 1
 
-    if 'sentiment_score_finbert' in items.columns:
-        items['sentiment_score_active'] = items['sentiment_score_finbert'].fillna(items['sentiment_score'])
-        items['sentiment_source'] = np.where(items['sentiment_score_finbert'].notna(), 'FinBERT', 'TextBlob')
+    if "sentiment_score_finbert" in items.columns:
+        items["sentiment_score_active"] = items["sentiment_score_finbert"].fillna(items["sentiment_score"])
+        items["sentiment_source"] = np.where(items["sentiment_score_finbert"].notna(), "FinBERT", "TextBlob")
     else:
-        items['sentiment_score_active'] = items['sentiment_score']
-        items['sentiment_source'] = 'TextBlob'
+        items["sentiment_score_active"] = items["sentiment_score"]
+        items["sentiment_source"] = "TextBlob"
 
-    items['sentiment_class'] = items['sentiment_score_active'].apply(sentiment_label)
-    items['headline_preview'] = items['raw_text'].apply(lambda x: safe_text(x, 120))
-    return items.sort_values('item_id').reset_index(drop=True), interactions, users
+    items["sentiment_class"] = items["sentiment_score_active"].apply(sentiment_label)
+    items["headline_preview"] = items["raw_text"].apply(lambda x: safe_text(x, 120))
+    return items.sort_values("item_id").reset_index(drop=True), interactions, users
 
 
 @st.cache_resource
 def build_artifacts(items_df: pd.DataFrame, interactions_df: pd.DataFrame):
-    tfidf = TfidfVectorizer(max_features=6000, ngram_range=(1, 2), stop_words='english', min_df=3, sublinear_tf=True)
-    content_matrix = tfidf.fit_transform(items_df['clean_text'].fillna(''))
-    user_item_matrix = interactions_df.pivot_table(index='user_id', columns='item_id', values='interaction', fill_value=0)
+    tfidf = TfidfVectorizer(
+        max_features=6000,
+        ngram_range=(1, 2),
+        stop_words="english",
+        min_df=3,
+        sublinear_tf=True,
+    )
+    content_matrix = tfidf.fit_transform(items_df["clean_text"].fillna(""))
+    user_item_matrix = interactions_df.pivot_table(index="user_id", columns="item_id", values="interaction", fill_value=0)
 
     embedding_matrix = None
-    emb_path = Path('semantic_embeddings.npy')
+    emb_path = Path("semantic_embeddings.npy")
     if emb_path.exists():
         embedding_matrix = np.load(emb_path)
     return content_matrix, user_item_matrix, embedding_matrix
@@ -378,7 +482,7 @@ content_matrix, user_item_matrix, embedding_matrix = build_artifacts(items_df, t
 
 
 def get_user_profile(user_id):
-    row = users_df[users_df['user_id'] == user_id]
+    row = users_df[users_df["user_id"] == user_id]
     if row.empty:
         return None
     return row.iloc[0]
@@ -409,28 +513,28 @@ def get_user_history(user_id: str, limit=8):
 
 def dominant_signal_name(row):
     signal_map = {
-        'Semantic' if 'embedding_score' in row else 'Content': row.get('embedding_score', row.get('content_score', 0)),
-        'Collaborative': row.get('cf_score', 0),
-        'Context': row.get('context_score', 0),
-        'Sentiment': row.get('sentiment_component', 0),
+        "Semantic" if "embedding_score" in row else "Content": row.get("embedding_score", row.get("content_score", 0)),
+        "Collaborative": row.get("cf_score", 0),
+        "Context": row.get("context_score", 0),
+        "Sentiment": row.get("sentiment_component", 0),
     }
     return max(signal_map, key=signal_map.get)
 
 
 def recommend_hybrid(
     user_id,
-    current_market_mode='bullish',
-    current_risk='medium',
-    preferred_sentiment='positive',
+    current_market_mode="bullish",
+    current_risk="medium",
+    preferred_sentiment="positive",
     top_k=5,
-    mode='Classic TF-IDF',
+    mode="Classic TF-IDF",
     w_content=0.30,
     w_cf=0.20,
     w_context=0.20,
     w_sentiment=0.10,
     w_embedding=0.20,
 ):
-    seen_items = set(train_interactions.loc[train_interactions['user_id'] == user_id, 'item_id'].tolist())
+    seen_items = set(train_interactions.loc[train_interactions["user_id"] == user_id, "item_id"].tolist())
 
     content_scores = np.zeros(len(items_df))
     if len(seen_items) > 0:
@@ -439,7 +543,7 @@ def recommend_hybrid(
         content_scores = cosine_similarity(user_profile_vec, content_matrix).ravel()
 
     embedding_scores = np.zeros(len(items_df))
-    use_embeddings = mode == 'Bonus Semantic Mode' and embedding_matrix is not None and len(seen_items) > 0
+    use_embeddings = mode == "Bonus Semantic Mode" and embedding_matrix is not None and len(seen_items) > 0
     if use_embeddings:
         seen_list = sorted(list(seen_items))
         profile_vec = embedding_matrix[seen_list].mean(axis=0).reshape(1, -1)
@@ -449,13 +553,13 @@ def recommend_hybrid(
     if user_id in user_item_matrix.index:
         user_vector = user_item_matrix.loc[user_id].values.reshape(1, -1)
         similarities = cosine_similarity(user_vector, user_item_matrix.values).ravel()
-        similar_users = pd.DataFrame({'user_id': user_item_matrix.index, 'similarity': similarities}).sort_values('similarity', ascending=False)
+        similar_users = pd.DataFrame({"user_id": user_item_matrix.index, "similarity": similarities}).sort_values("similarity", ascending=False)
         for _, row in similar_users.iterrows():
-            other_user = row['user_id']
-            sim = row['similarity']
+            other_user = row["user_id"]
+            sim = row["similarity"]
             if other_user == user_id:
                 continue
-            other_items = train_interactions.loc[train_interactions['user_id'] == other_user, 'item_id'].tolist()
+            other_items = train_interactions.loc[train_interactions["user_id"] == other_user, "item_id"].tolist()
             for item in other_items:
                 if item not in seen_items and item < len(cf_scores):
                     cf_scores[item] += sim
@@ -463,18 +567,18 @@ def recommend_hybrid(
     context_scores = np.zeros(len(items_df))
     for i in range(len(items_df)):
         score = 0.0
-        if items_df.loc[i, 'market_mode'] == current_market_mode:
+        if items_df.loc[i, "market_mode"] == current_market_mode:
             score += 0.5
-        if items_df.loc[i, 'risk_level'] == current_risk:
+        if items_df.loc[i, "risk_level"] == current_risk:
             score += 0.3
-        if sentiment_label(items_df.loc[i, 'sentiment_score_active']) == preferred_sentiment:
+        if sentiment_label(items_df.loc[i, "sentiment_score_active"]) == preferred_sentiment:
             score += 0.2
         context_scores[i] = score
 
-    sentiment_scores = items_df['sentiment_score_active'].fillna(0).values.copy()
-    if preferred_sentiment == 'negative':
+    sentiment_scores = items_df["sentiment_score_active"].fillna(0).values.copy()
+    if preferred_sentiment == "negative":
         sentiment_scores = -sentiment_scores
-    elif preferred_sentiment == 'neutral':
+    elif preferred_sentiment == "neutral":
         sentiment_scores = -np.abs(sentiment_scores)
 
     content_scaled = minmax_scale(content_scores)
@@ -499,70 +603,69 @@ def recommend_hybrid(
             w_sentiment * sentiment_scaled
         )
 
-    candidate_idx = [i for i in items_df['item_id'].tolist() if i not in seen_items]
+    candidate_idx = [i for i in items_df["item_id"].tolist() if i not in seen_items]
     ranked = sorted(candidate_idx, key=lambda i: final_scores[i], reverse=True)[:top_k]
-    result = items_df[items_df['item_id'].isin(ranked)].copy()
-    result['content_score'] = result['item_id'].apply(lambda i: float(content_scaled[i]))
-    result['embedding_score'] = result['item_id'].apply(lambda i: float(embed_scaled[i]))
-    result['cf_score'] = result['item_id'].apply(lambda i: float(cf_scaled[i]))
-    result['context_score'] = result['item_id'].apply(lambda i: float(context_scaled[i]))
-    result['sentiment_component'] = result['item_id'].apply(lambda i: float(sentiment_scaled[i]))
-    result['hybrid_score'] = result['item_id'].apply(lambda i: float(final_scores[i]))
+    result = items_df[items_df["item_id"].isin(ranked)].copy()
+    result["content_score"] = result["item_id"].apply(lambda i: float(content_scaled[i]))
+    result["embedding_score"] = result["item_id"].apply(lambda i: float(embed_scaled[i]))
+    result["cf_score"] = result["item_id"].apply(lambda i: float(cf_scaled[i]))
+    result["context_score"] = result["item_id"].apply(lambda i: float(context_scaled[i]))
+    result["sentiment_component"] = result["item_id"].apply(lambda i: float(sentiment_scaled[i]))
+    result["hybrid_score"] = result["item_id"].apply(lambda i: float(final_scores[i]))
 
     def explain(row):
         reasons = []
-        if use_embeddings and row['embedding_score'] > 0.30:
-            reasons.append('semantic embedding similarity matched the user history')
-        elif row['content_score'] > 0.30:
-            reasons.append('headline pattern is close to the user history')
-        if row['cf_score'] > 0.20:
-            reasons.append('similar users also interacted with this market day')
-        if row['market_mode'] == current_market_mode:
-            reasons.append(f'matches the current market regime ({current_market_mode})')
-        if row['risk_level'] == current_risk:
-            reasons.append(f'aligns with the chosen risk setting ({current_risk})')
-        reasons.append(f'news tone is {sentiment_label(row["sentiment_score_active"])}')
-        reasons.append('final rank is produced by a weighted hybrid engine')
-        return '; '.join(reasons)
+        if use_embeddings and row["embedding_score"] > 0.30:
+            reasons.append("semantic embedding similarity matched the user history")
+        elif row["content_score"] > 0.30:
+            reasons.append("headline pattern is close to the user history")
+        if row["cf_score"] > 0.20:
+            reasons.append("similar users also interacted with this market day")
+        if row["market_mode"] == current_market_mode:
+            reasons.append(f"matches the current market regime ({current_market_mode})")
+        if row["risk_level"] == current_risk:
+            reasons.append(f"aligns with the chosen risk setting ({current_risk})")
+        reasons.append(f"news tone is {sentiment_label(row['sentiment_score_active'])}")
+        reasons.append("final rank is produced by a weighted hybrid engine")
+        return "; ".join(reasons)
 
-    result['explanation'] = result.apply(explain, axis=1)
-    return result.sort_values('hybrid_score', ascending=False).reset_index(drop=True)
+    result["explanation"] = result.apply(explain, axis=1)
+    return result.sort_values("hybrid_score", ascending=False).reset_index(drop=True)
 
 
-# Sidebar
-st.sidebar.markdown('## 🧠 Investor Scenario')
-st.sidebar.caption('Bonus-complete version with semantic retrieval, FinBERT-ready sentiment, and live refresh controls.')
+st.sidebar.markdown("## 🧠 Investor Scenario")
+st.sidebar.caption("Bonus-complete version with semantic retrieval, FinBERT-ready sentiment, and live refresh controls.")
 
 if st_autorefresh is not None:
-    auto_refresh = st.sidebar.toggle('Enable live refresh', value=False)
-    refresh_seconds = st.sidebar.slider('Refresh every (seconds)', 5, 60, 15)
+    auto_refresh = st.sidebar.toggle("Enable live refresh", value=False)
+    refresh_seconds = st.sidebar.slider("Refresh every (seconds)", 5, 60, 15)
     if auto_refresh:
-        st_autorefresh(interval=refresh_seconds * 1000, key='datarefresh')
+        st_autorefresh(interval=refresh_seconds * 1000, key="datarefresh")
 else:
-    st.sidebar.info('Install streamlit-autorefresh to enable live refresh mode.')
+    st.sidebar.info("Install streamlit-autorefresh to enable live refresh mode.")
 
-selected_user = st.sidebar.selectbox('Investor type', users_df['user_id'].tolist(), index=0)
+selected_user = st.sidebar.selectbox("Investor type", users_df["user_id"].tolist(), index=0)
 profile = get_user_profile(selected_user)
-default_market = profile['pref_market'] if profile is not None else 'bullish'
-default_risk = profile['pref_risk'] if profile is not None else 'medium'
-default_sentiment = profile['pref_sentiment'] if profile is not None else 'positive'
+default_market = profile["pref_market"] if profile is not None else "bullish"
+default_risk = profile["pref_risk"] if profile is not None else "medium"
+default_sentiment = profile["pref_sentiment"] if profile is not None else "positive"
 
-market_options = sorted(items_df['market_mode'].dropna().unique().tolist())
-risk_options = sorted(items_df['risk_level'].dropna().unique().tolist())
-sentiment_options = ['positive', 'neutral', 'negative']
+market_options = sorted(items_df["market_mode"].dropna().unique().tolist())
+risk_options = sorted(items_df["risk_level"].dropna().unique().tolist())
+sentiment_options = ["positive", "neutral", "negative"]
 
-current_market = st.sidebar.radio('Current market regime', market_options, index=market_options.index(default_market), horizontal=True)
-current_risk = st.sidebar.select_slider('Risk environment', options=risk_options, value=default_risk)
-preferred_sentiment = st.sidebar.selectbox('News tone focus', sentiment_options, index=sentiment_options.index(default_sentiment))
-num_recs = st.sidebar.slider('How many ranked insights to review', 3, 10, 5)
-mode = st.sidebar.radio('Recommendation mode', ['Classic TF-IDF', 'Bonus Semantic Mode'], index=1 if embedding_matrix is not None else 0)
+current_market = st.sidebar.radio("Current market regime", market_options, index=market_options.index(default_market), horizontal=True)
+current_risk = st.sidebar.select_slider("Risk environment", options=risk_options, value=default_risk)
+preferred_sentiment = st.sidebar.selectbox("News tone focus", sentiment_options, index=sentiment_options.index(default_sentiment))
+num_recs = st.sidebar.slider("How many ranked insights to review", 3, 10, 5)
+mode = st.sidebar.radio("Recommendation mode", ["Classic TF-IDF", "Bonus Semantic Mode"], index=1 if embedding_matrix is not None else 0)
 
-with st.sidebar.expander('⚙️ Hybrid weights'):
-    w_content = st.slider('TF-IDF content', 0.0, 1.0, 0.30, 0.05)
-    w_embedding = st.slider('Semantic embeddings', 0.0, 1.0, 0.20 if embedding_matrix is not None else 0.0, 0.05)
-    w_cf = st.slider('Collaborative', 0.0, 1.0, 0.20, 0.05)
-    w_context = st.slider('Context', 0.0, 1.0, 0.20, 0.05)
-    w_sentiment = st.slider('Sentiment', 0.0, 1.0, 0.10, 0.05)
+with st.sidebar.expander("⚙️ Hybrid weights"):
+    w_content = st.slider("TF-IDF content", 0.0, 1.0, 0.30, 0.05)
+    w_embedding = st.slider("Semantic embeddings", 0.0, 1.0, 0.20 if embedding_matrix is not None else 0.0, 0.05)
+    w_cf = st.slider("Collaborative", 0.0, 1.0, 0.20, 0.05)
+    w_context = st.slider("Context", 0.0, 1.0, 0.20, 0.05)
+    w_sentiment = st.slider("Sentiment", 0.0, 1.0, 0.10, 0.05)
     total = w_content + w_embedding + w_cf + w_context + w_sentiment
     if total == 0:
         st.stop()
@@ -584,28 +687,32 @@ k1, k2, k3, k4 = st.columns(4)
 for col, (label, value) in zip(
     [k1, k2, k3, k4],
     [
-        ('Items', f"{len(items_df):,}"),
-        ('Users', f"{users_df['user_id'].nunique():,}"),
-        ('Interactions', f"{len(train_interactions):,}"),
-        ('Sentiment backend', items_df['sentiment_source'].iloc[0] if items_df['sentiment_source'].nunique() == 1 else 'Mixed'),
+        ("Items", f"{len(items_df):,}"),
+        ("Users", f"{users_df['user_id'].nunique():,}"),
+        ("Interactions", f"{len(train_interactions):,}"),
+        ("Sentiment backend", items_df["sentiment_source"].iloc[0] if items_df["sentiment_source"].nunique() == 1 else "Mixed"),
     ],
 ):
     with col:
-        st.markdown(f"<div class='metric-card'><div class='metric-label'>{label}</div><div class='metric-value'>{value}</div></div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='metric-card'><div class='metric-label'>{label}</div><div class='metric-value'>{value}</div></div>",
+            unsafe_allow_html=True,
+        )
 
-left, right = st.columns([1.2, 1], gap='large')
+left, right = st.columns([1.2, 1], gap="large")
 with left:
     st.markdown("<div class='glass-card'><h3>User profile</h3>", unsafe_allow_html=True)
     p1, p2, p3 = st.columns(3)
-    p1.metric('Preferred market', profile['pref_market'].title())
-    p2.metric('Preferred risk', profile['pref_risk'].title())
-    p3.metric('Preferred sentiment', profile['pref_sentiment'].title())
+    p1.metric("Preferred market", profile["pref_market"].title())
+    p2.metric("Preferred risk", profile["pref_risk"].title())
+    p3.metric("Preferred sentiment", profile["pref_sentiment"].title())
     hist = get_user_history(selected_user)
-    hist_view = hist[['Date', 'item_id', 'market_mode', 'risk_level', 'sentiment', 'raw_text']].copy()
-    hist_view['Date'] = hist_view['Date'].dt.strftime('%Y-%m-%d')
-    hist_view['headline_preview'] = hist_view['raw_text'].apply(lambda x: safe_text(x, 90))
-    st.dataframe(hist_view[['Date', 'item_id', 'market_mode', 'risk_level', 'sentiment', 'headline_preview']], use_container_width=True, hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    hist_view = hist[["Date", "item_id", "market_mode", "risk_level", "sentiment", "raw_text"]].copy()
+    hist_view["Date"] = hist_view["Date"].dt.strftime("%Y-%m-%d")
+    hist_view["headline_preview"] = hist_view["raw_text"].apply(lambda x: safe_text(x, 90))
+    table_df = hist_view[["Date", "item_id", "market_mode", "risk_level", "sentiment", "headline_preview"]].copy()
+    st.markdown(render_pretty_table(table_df, max_rows=8), unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 with right:
     st.markdown("<div class='glass-card'><h3>Scenario briefing</h3>", unsafe_allow_html=True)
@@ -614,14 +721,22 @@ with right:
         f"<span class='chip'>Market: {current_market.title()}</span>"
         f"<span class='chip'>Risk: {current_risk.title()}</span>"
         f"<span class='chip'>Tone lens: {preferred_sentiment.title()}</span>"
-        f"<span class='chip'>Mode: {mode}</span>", unsafe_allow_html=True
+        f"<span class='chip'>Mode: {mode}</span>",
+        unsafe_allow_html=True,
     )
-    sentiment_counts = items_df['sentiment_class'].value_counts().reindex(['negative', 'neutral', 'positive']).fillna(0).reset_index()
-    sentiment_counts.columns = ['sentiment', 'count']
-    fig_sent = px.bar(sentiment_counts, x='sentiment', y='count', color='sentiment')
-    fig_sent.update_layout(height=280, margin=dict(l=10, r=10, t=10, b=10), showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='#eaf2ff'))
+    sentiment_counts = items_df["sentiment_class"].value_counts().reindex(["negative", "neutral", "positive"]).fillna(0).reset_index()
+    sentiment_counts.columns = ["sentiment", "count"]
+    fig_sent = px.bar(sentiment_counts, x="sentiment", y="count", color="sentiment")
+    fig_sent.update_layout(
+        height=280,
+        margin=dict(l=10, r=10, t=10, b=10),
+        showlegend=False,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#eaf2ff"),
+    )
     st.plotly_chart(fig_sent, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 reco = recommend_hybrid(
     user_id=selected_user,
@@ -637,7 +752,7 @@ reco = recommend_hybrid(
     w_embedding=w_embedding,
 )
 
-t1, t2, t3, t4 = st.tabs(['Recommendations', 'Deep analysis', 'Bonus features', 'Deployment'])
+t1, t2, t3, t4 = st.tabs(["Recommendations", "Deep analysis", "Bonus features", "Deployment"])
 
 with t1:
     for idx, row in reco.iterrows():
@@ -663,17 +778,28 @@ with t2:
     c1, c2 = st.columns(2)
     with c1:
         component_means = pd.DataFrame({
-            'component': ['tfidf', 'semantic', 'collaborative', 'context', 'sentiment'],
-            'score': [
-                reco['content_score'].mean(), reco['embedding_score'].mean(), reco['cf_score'].mean(),
-                reco['context_score'].mean(), reco['sentiment_component'].mean()
+            "component": ["tfidf", "semantic", "collaborative", "context", "sentiment"],
+            "score": [
+                reco["content_score"].mean(),
+                reco["embedding_score"].mean(),
+                reco["cf_score"].mean(),
+                reco["context_score"].mean(),
+                reco["sentiment_component"].mean()
             ]
         })
-        fig_avg = px.bar(component_means, x='component', y='score', color='component')
-        fig_avg.update_layout(height=320, showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='#eaf2ff'))
+        fig_avg = px.bar(component_means, x="component", y="score", color="component")
+        fig_avg.update_layout(
+            height=320,
+            showlegend=False,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#eaf2ff"),
+        )
         st.plotly_chart(fig_avg, use_container_width=True)
     with c2:
-        st.dataframe(reco[['item_id', 'Date', 'content_score', 'embedding_score', 'cf_score', 'context_score', 'sentiment_component', 'hybrid_score']], use_container_width=True, hide_index=True)
+        deep_df = reco[["item_id", "Date", "content_score", "embedding_score", "cf_score", "context_score", "sentiment_component", "hybrid_score"]].copy()
+        deep_df["Date"] = pd.to_datetime(deep_df["Date"]).dt.strftime("%Y-%m-%d")
+        st.markdown(render_pretty_table(deep_df, max_rows=8), unsafe_allow_html=True)
 
 with t3:
     st.markdown("""
@@ -683,8 +809,8 @@ with t3:
     - **Real-time updates:** enabled with `streamlit-autorefresh`.
     - **Cloud deployment readiness:** deployment files are provided in this package.
     """)
-    st.success('This app is ready to use the bonus features as soon as the enriched artifacts are generated from the updated notebook.')
-    st.code('python -m streamlit run streamlit_app_bonus_complete.py')
+    st.success("This app is ready to use the bonus features as soon as the enriched artifacts are generated from the updated notebook.")
+    st.code("python -m streamlit run streamlit_app_bonus_complete.py")
 
 with t4:
     st.markdown("""
@@ -696,6 +822,9 @@ with t4:
 
     Note: actual cloud hosting must still be performed on the selected platform.
     """)
-    st.code('docker build -t cognitus-lite .\ndocker run -p 8501:8501 cognitus-lite')
+    st.code("docker build -t cognitus-lite .\ndocker run -p 8501:8501 cognitus-lite")
 
-st.markdown("<div style='color:#aab8d3; margin-top:1rem;'>Built from processed_items_for_streamlit.csv, train_interactions_for_streamlit.csv, synthetic_user_profiles.csv, and optional enriched bonus artifacts.</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div style='color:#aab8d3; margin-top:1rem;'>Built from processed_items_for_streamlit.csv, train_interactions_for_streamlit.csv, synthetic_user_profiles.csv, and optional enriched bonus artifacts.</div>",
+    unsafe_allow_html=True,
+)
