@@ -27,9 +27,9 @@ CUSTOM_CSS = """
         --bg-soft: rgba(13, 24, 40, 0.82);
         --card: rgba(10, 19, 33, 0.88);
         --card-2: rgba(15, 28, 46, 0.92);
-        --stroke: rgba(255, 255, 255, 0.10);
-        --text: #f4f8ff;
-        --muted: #c2d0ea;
+        --stroke: rgba(255, 255, 255, 0.12);
+        --text: #f8fbff;
+        --muted: #d3def2;
         --accent: #6ea8ff;
         --accent-2: #2dd4bf;
         --danger: #ff7b7b;
@@ -44,18 +44,18 @@ CUSTOM_CSS = """
     }
 
     .block-container {
-        padding-top: 1.2rem;
+        padding-top: 1.1rem;
         padding-bottom: 2rem;
         max-width: 1460px;
     }
 
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, rgba(9, 16, 28, 0.99), rgba(11, 18, 31, 0.99));
+        background: linear-gradient(180deg, rgba(8, 15, 27, 0.99), rgba(11, 18, 31, 0.99));
         border-right: 1px solid var(--stroke);
     }
 
     [data-testid="stSidebar"] .block-container {
-        padding-top: 1.25rem;
+        padding-top: 1rem;
         padding-left: 1rem;
         padding-right: 1rem;
     }
@@ -68,7 +68,7 @@ CUSTOM_CSS = """
         background: linear-gradient(135deg, rgba(16, 30, 52, 0.96), rgba(12, 23, 38, 0.92));
         border: 1px solid var(--stroke);
         border-radius: 24px;
-        padding: 1.4rem 1.6rem;
+        padding: 1.35rem 1.5rem;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
         margin-bottom: 1rem;
     }
@@ -100,7 +100,7 @@ CUSTOM_CSS = """
         background: linear-gradient(180deg, rgba(11, 21, 35, 0.94), rgba(12, 20, 33, 0.90));
         border: 1px solid var(--stroke);
         border-radius: 22px;
-        padding: 1.1rem 1.1rem;
+        padding: 1rem 1.05rem;
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
         margin-bottom: 1rem;
     }
@@ -109,7 +109,7 @@ CUSTOM_CSS = """
         background: linear-gradient(180deg, rgba(12, 22, 36, 0.96), rgba(8, 16, 28, 0.96));
         border: 1px solid var(--stroke);
         border-radius: 22px;
-        padding: 1.15rem 1.15rem 1rem 1.15rem;
+        padding: 1.1rem 1.1rem 0.9rem 1.1rem;
         margin-bottom: 1rem;
         box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
     }
@@ -118,102 +118,125 @@ CUSTOM_CSS = """
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
         border-radius: 999px;
         background: linear-gradient(135deg, rgba(91, 140, 255, 0.25), rgba(35, 198, 168, 0.22));
         border: 1px solid rgba(255,255,255,0.10);
         font-weight: 800;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
 
     .chip {
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
-        padding: 0.45rem 0.78rem;
+        padding: 0.42rem 0.72rem;
         border-radius: 999px;
         border: 1px solid rgba(255,255,255,0.10);
         background: rgba(255, 255, 255, 0.05);
         font-size: 0.84rem;
         color: var(--text);
-        margin-right: 0.45rem;
+        margin-right: 0.4rem;
         margin-bottom: 0.45rem;
         font-weight: 600;
     }
 
-    .pill-positive { background: rgba(35, 198, 168, 0.14); color: #90ffe4; border: 1px solid rgba(35,198,168,0.26); }
-    .pill-neutral { background: rgba(245, 179, 66, 0.14); color: #ffe19a; border: 1px solid rgba(245,179,66,0.26); }
-    .pill-negative { background: rgba(255, 107, 107, 0.14); color: #ffb1b1; border: 1px solid rgba(255,107,107,0.26); }
+    .pill-positive { background: rgba(35, 198, 168, 0.14); color: #8dffe1; border: 1px solid rgba(35,198,168,0.26); }
+    .pill-neutral { background: rgba(245, 179, 66, 0.14); color: #ffe09a; border: 1px solid rgba(245,179,66,0.26); }
+    .pill-negative { background: rgba(255, 107, 107, 0.14); color: #ffb0b0; border: 1px solid rgba(255,107,107,0.26); }
 
-    /* Sidebar section labels */
+    /* Sidebar text */
     [data-testid="stSidebar"] label,
     [data-testid="stSidebar"] .stMarkdown,
     [data-testid="stSidebar"] p,
     [data-testid="stSidebar"] span,
     [data-testid="stSidebar"] div {
-        color: var(--text);
+        color: var(--text) !important;
     }
 
-    /* Selectbox / multiselect / dropdown */
+    /* Closed select box */
     div[data-baseweb="select"] > div {
-        background: rgba(15, 27, 46, 0.96) !important;
-        border: 1px solid rgba(255,255,255,0.14) !important;
-        border-radius: 14px !important;
-        min-height: 3rem !important;
+        background: #0c1a2d !important;
+        border: 1px solid rgba(255,255,255,0.16) !important;
+        border-radius: 16px !important;
+        min-height: 3.15rem !important;
         box-shadow: none !important;
     }
 
-    div[data-baseweb="select"] * {
-        color: #f4f8ff !important;
-        font-weight: 600 !important;
+    div[data-baseweb="select"] input {
+        color: #ffffff !important;
     }
 
-    div[data-baseweb="popover"] * {
-        color: #f4f8ff !important;
-    }
-
-    /* Text input / number input */
-    .stTextInput input,
-    .stNumberInput input {
-        background: rgba(15, 27, 46, 0.96) !important;
-        color: #f4f8ff !important;
-        border-radius: 14px !important;
-        border: 1px solid rgba(255,255,255,0.14) !important;
-    }
-
-    /* Radio buttons labels */
-    .stRadio label,
-    .stSelectbox label,
-    .stSlider label,
-    .stToggle label {
+    div[data-baseweb="select"] span {
+        color: #ffffff !important;
+        opacity: 1 !important;
         font-weight: 700 !important;
-        color: #f4f8ff !important;
     }
 
-    /* Radio horizontal options */
+    div[data-baseweb="select"] svg {
+        fill: #ffffff !important;
+    }
+
+    /* Open dropdown / popover menu */
+    div[data-baseweb="popover"] {
+        z-index: 99999 !important;
+    }
+
+    div[data-baseweb="menu"] {
+        background: #0c1a2d !important;
+        border: 1px solid rgba(255,255,255,0.16) !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+    }
+
+    div[data-baseweb="menu"] ul,
+    div[data-baseweb="menu"] li,
+    div[data-baseweb="menu"] div {
+        background: #0c1a2d !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+
+    div[data-baseweb="menu"] li:hover,
+    div[data-baseweb="menu"] div:hover {
+        background: #17304f !important;
+        color: #ffffff !important;
+    }
+
+    /* Fallback for option list text visibility */
+    [role="option"] {
+        background: #0c1a2d !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+
+    [role="option"]:hover {
+        background: #17304f !important;
+        color: #ffffff !important;
+    }
+
+    [aria-selected="true"] {
+        background: #203d63 !important;
+        color: #ffffff !important;
+    }
+
+    /* Radio pills */
     div[role="radiogroup"] label {
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.10);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.12);
         border-radius: 12px;
-        padding: 0.4rem 0.65rem;
+        padding: 0.35rem 0.65rem;
         margin-right: 0.35rem;
     }
 
-    /* Slider track and text */
-    .stSlider [data-testid="stTickBarMin"],
-    .stSlider [data-testid="stThumbValue"] {
-        color: #f4f8ff !important;
-    }
-
-    .stSlider > div[data-baseweb="slider"] > div {
-        color: #f4f8ff !important;
-    }
-
-    /* Toggle spacing */
-    .stToggle {
-        padding-top: 0.2rem;
-        padding-bottom: 0.4rem;
+    /* Slider labels */
+    .stSlider label,
+    .stRadio label,
+    .stSelectbox label,
+    .stToggle label {
+        color: #ffffff !important;
+        font-weight: 700 !important;
     }
 
     /* Buttons */
@@ -239,20 +262,37 @@ CUSTOM_CSS = """
 
     /* Dataframe */
     div[data-testid="stDataFrame"] {
-        border: 1px solid rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.12);
         border-radius: 18px;
         overflow: hidden;
     }
 
+    /* Top right app toolbar icons */
+    [data-testid="stToolbar"] button,
+    [data-testid="stToolbar"] svg,
+    [data-testid="stToolbarActions"] button,
+    [data-testid="stDecoration"] {
+        color: #ffffff !important;
+        fill: #ffffff !important;
+        opacity: 1 !important;
+    }
+
+    header button,
+    header svg {
+        color: #ffffff !important;
+        fill: #ffffff !important;
+        opacity: 1 !important;
+    }
+
     /* Tabs */
     button[data-baseweb="tab"] {
-        color: #d9e6ff !important;
+        color: #e8f0ff !important;
         font-weight: 700 !important;
     }
 
-    /* Help text / captions */
-    [data-testid="stSidebar"] .stCaption,
-    .stCaption {
+    /* Captions */
+    .stCaption,
+    [data-testid="stSidebar"] .stCaption {
         color: var(--muted) !important;
     }
 </style>
