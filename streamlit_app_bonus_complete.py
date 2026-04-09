@@ -57,6 +57,11 @@ CUSTOM_CSS = """
             linear-gradient(180deg, #07111f 0%, #08101a 100%);
     }
 
+    .pretty-table td, .pretty-table th {
+        padding: 0.95rem 1.1rem !important;
+        font-size: 0.95rem !important;
+    }
+
     .block-container {
         padding-top: 1.1rem;
         padding-bottom: 2rem;
@@ -66,6 +71,12 @@ CUSTOM_CSS = """
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, rgba(8, 15, 27, 0.99), rgba(11, 18, 31, 0.99));
         border-right: 1px solid var(--stroke);
+    }
+
+    [data-testid="stSidebar"] .stRadio,
+    [data-testid="stSidebar"] .stSelectbox,
+    [data-testid="stSidebar"] .stSlider {
+        margin-bottom: 1.2rem !important;
     }
 
     [data-testid="stSidebar"] .block-container {
@@ -750,7 +761,7 @@ with right:
     fig_sent = px.bar(sentiment_counts, x="sentiment", y="count", color="sentiment")
     fig_sent.update_layout(
         height=280,
-        margin=dict(l=10, r=10, t=10, b=10),
+        margin=dict(l=10, r=10, t=40, b=10),
         showlegend=False,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
