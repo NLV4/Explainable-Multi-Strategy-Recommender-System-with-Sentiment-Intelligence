@@ -58,7 +58,7 @@ CUSTOM_CSS = """
     }
 
     .pretty-table td, .pretty-table th {
-        padding: 0.95rem 1.1rem !important;
+        padding: 1rem 1.2rem !important;
         font-size: 0.95rem !important;
     }
 
@@ -761,7 +761,7 @@ with right:
     fig_sent = px.bar(sentiment_counts, x="sentiment", y="count", color="sentiment")
     fig_sent.update_layout(
         height=280,
-        margin=dict(l=10, r=10, t=40, b=10),
+        margin=dict(l=10, r=10, t=50, b=10),
         showlegend=False,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
