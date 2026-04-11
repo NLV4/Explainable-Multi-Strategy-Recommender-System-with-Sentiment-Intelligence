@@ -27,23 +27,33 @@ plotly_config = {
 
 st.markdown("""
 <style>
-
-/* Reduce header height instead of removing */
 header[data-testid="stHeader"] {
-    height: 0px;
-    background: transparent;
+    visibility: hidden;
+    height: 0rem;
 }
 
-/* Remove toolbar (top right icons) */
 div[data-testid="stToolbar"] {
     display: none !important;
 }
 
-/* Fix spacing after header */
-.block-container {
-    padding-top: 0.5rem !important;
+section[data-testid="stSidebar"] {
+    top: 0rem;
 }
 
+.block-container {
+    padding-top: 0rem !important;
+    margin-top: 0rem !important;
+}
+
+[data-testid="stAppViewContainer"] > .main {
+    padding-top: 0rem !important;
+    margin-top: 0rem !important;
+}
+
+[data-testid="stAppViewContainer"] {
+    padding-top: 0rem !important;
+    margin-top: 0rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -71,7 +81,7 @@ CUSTOM_CSS = """
     }
 
     .block-container {
-        padding-top: 1.1rem;
+        padding-top: 0rem !important;
         padding-bottom: 2rem;
         max-width: 1460px;
     }
@@ -103,7 +113,9 @@ CUSTOM_CSS = """
         border-radius: 24px;
         padding: 1.35rem 1.5rem;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+        margin-top: 0rem !important;
         margin-bottom: 1rem;
+
     }
 
     .metric-card {
