@@ -41,8 +41,9 @@ section[data-testid="stSidebar"] {
 }
 
 .block-container {
-    padding-top: 0rem !important;
-    margin-top: 0rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 2rem;
+    max-width: 1460px;
 }
 
 [data-testid="stAppViewContainer"] > .main {
@@ -59,16 +60,6 @@ section[data-testid="stSidebar"] {
 
 CUSTOM_CSS = """
 <style>
-    html, body, [data-testid="stAppViewContainer"] {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    [data-testid="stAppViewContainer"] > .main {
-        margin-top: -3.5rem !important;
-        padding-top: 0rem !important;
-    }
-
     :root {
         --bg: #07111f;
         --stroke: rgba(255, 255, 255, 0.12);
@@ -91,7 +82,7 @@ CUSTOM_CSS = """
     }
 
     .block-container {
-        padding-top: 0rem !important;
+        padding-top: 1.1rem;
         padding-bottom: 2rem;
         max-width: 1460px;
     }
@@ -123,9 +114,8 @@ CUSTOM_CSS = """
         border-radius: 24px;
         padding: 1.35rem 1.5rem;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
-        margin-top: -2.5rem !important;
+        margin-top: 0rem !important;
         margin-bottom: 1rem;
-
     }
 
     .metric-card {
