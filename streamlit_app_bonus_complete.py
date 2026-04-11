@@ -28,12 +28,22 @@ plotly_config = {
 st.markdown("""
 <style>
 
+/* Reduce header height instead of removing */
+header[data-testid="stHeader"] {
+    height: 0px;
+    background: transparent;
+}
+
+/* Remove toolbar (top right icons) */
 div[data-testid="stToolbar"] {
     display: none !important;
 }
-button[kind="header"] {
-    display: none !important;
+
+/* Fix spacing after header */
+.block-container {
+    padding-top: 0.5rem !important;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
