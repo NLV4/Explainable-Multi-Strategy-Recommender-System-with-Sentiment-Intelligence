@@ -27,9 +27,7 @@ plotly_config = {
 
 st.markdown("""
 <style>
-header[data-testid="stHeader"] {
-    display: none !important;
-}
+
 div[data-testid="stToolbar"] {
     display: none !important;
 }
