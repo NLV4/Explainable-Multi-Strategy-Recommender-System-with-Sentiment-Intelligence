@@ -757,7 +757,7 @@ with st.sidebar.expander("⚙️ Hybrid weights"):
     w_context /= total
     w_sentiment /= total
 
-st.markdown("""
+st.markdown(f"""
 <div class='hero'>
     <div style='font-size:2rem; font-weight:800; line-height:1.1;'>Cognitus Lite+</div>
     <div style='font-size:1.05rem; font-weight:700; margin-bottom:0.2rem;'>Bonus-Complete Explainable Hybrid Finance Recommendation Dashboard</div>
