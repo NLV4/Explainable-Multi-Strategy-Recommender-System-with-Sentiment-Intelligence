@@ -407,6 +407,10 @@ CUSTOM_CSS = """
 
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
+from datetime import datetime
+
+def get_last_updated_text() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def safe_text(text, limit=220):
     text = str(text).replace("\n", " ").strip()
@@ -691,10 +695,36 @@ st.sidebar.caption("Bonus-complete version with semantic retrieval, FinBERT-read
 if st_autorefresh is not None:
     auto_refresh = st.sidebar.toggle("Enable live refresh", value=False)
     refresh_seconds = st.sidebar.slider("Refresh every (seconds)", 5, 60, 15)
+
     if auto_refresh:
-        st_autorefresh(interval=refresh_seconds * 1000, key="datarefresh")
+        refresh_count = st_autorefresh(interval=refresh_seconds * 1000, key="datarefresh")
+    else:
+        refresh_count = 0
 else:
     st.sidebar.info("Install streamlit-autorefresh to enable live refresh mode.")
+    auto_refresh = False
+    refresh_seconds = 15
+    refresh_count = 0
+
+status_text = "On" if auto_refresh else "Off"
+time_text = get_last_updated_text()
+
+st.sidebar.markdown(
+    f"""
+    <div class='sidebar-panel'>
+        <div class='sidebar-step'>Live status</div>
+        <div class='sidebar-copy'>
+            Auto-refresh: <b>{status_text}</b><br>
+            Interval: <b>{refresh_seconds} seconds</b><br>
+            Refresh count: <b>{refresh_count}</b><br>
+            Last updated: <b>{time_text}</b>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 
 selected_user = st.sidebar.selectbox("Investor type", users_df["user_id"].tolist(), index=0)
 profile = get_user_profile(selected_user)
@@ -731,7 +761,11 @@ st.markdown("""
 <div class='hero'>
     <div style='font-size:2rem; font-weight:800; line-height:1.1;'>Cognitus Lite+</div>
     <div style='font-size:1.05rem; font-weight:700; margin-bottom:0.2rem;'>Bonus-Complete Explainable Hybrid Finance Recommendation Dashboard</div>
-    <div style='color:#aab8d3;'>This enhanced version adds FinBERT-ready sentiment support, semantic embedding search, live-refresh controls, deployment files, and the original hybrid explainable recommender.</div>
+    <div style='color:#aab8d3;'>
+    This enhanced version adds FinBERT-ready sentiment support, semantic embedding search, live-refresh controls, deployment files, and the original hybrid explainable recommender.
+    <br><br>
+    <b>Last updated:</b> {get_last_updated_text()}
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
